@@ -170,14 +170,33 @@ public class GUI extends JFrame{
     }
     
     
-    public void drawDiagram() {
+    public void drawDiagram(List<Process> processes, int totalTime) {
+        pnlDiagram.removeAll();
+        pnlDiagram.repaint();
+        
         add(pnlDiagram);
         pnlDiagram.setBackground(c2);
         pnlDiagram.setLayout(null);
         pnlDiagram.setBounds(0, 475, screenWidth, 225);
         pnlDiagram.setBorder(BorderFactory.createLineBorder(Color.black));
         
-        diagram = new JTable(0, 10);
+        String columns[] = new String[totalTime+1];
+        String data[][] = new String[processes.size()][totalTime+1];
+        columns[0] = "Proceso";
+
+        for (int i = 1; i < totalTime+1; i++) {
+            for (int j = 0; j < processes.size(); j++) {
+                if (i == 1) {
+                    data[j][0] = " ";
+                } else {
+                    data[j][i] = "-";
+                }
+
+            }
+            columns[i] = Integer.toString(i-1);
+        }
+        
+        diagram = new JTable(data, columns);
         diagram.setEnabled(false);
         diagram.setBackground(c2);
         diagram.setPreferredScrollableViewportSize(new Dimension(screenWidth - 50, 150));
@@ -187,6 +206,19 @@ public class GUI extends JFrame{
         scroll.setBounds(10, 10, screenWidth - 200, 150);
         
         pnlDiagram.add(scroll);
+    }
+    
+    public void editDiagramCell(String value, int row, int column) {
+        diagram.setValueAt(value, row, column);
+        diagram.repaint();
+    }
+    
+    public void addTableInfo(int tComienzo, int tFinal, int tRetorno, int tEspera, int row) {
+        tblProcess.setValueAt(tComienzo, row, 3);
+        tblProcess.setValueAt(tFinal, row, 4);
+        tblProcess.setValueAt(tRetorno, row, 5);
+        tblProcess.setValueAt(tEspera, row, 6);
+        tblProcess.repaint();
     }
     
     public Color getRandomColor() {
@@ -200,11 +232,11 @@ public class GUI extends JFrame{
     public void paintCell(int column, int row, Color color) {
         ColorColumnRenderer cellRender = new ColorColumnRenderer();
         try {
-            System.out.println("Pintando: "+column+","+row);
-            if (column > 9) {
-                System.out.println("Agregando columna");
-                addDiagramColumn();
-            }
+            //System.out.println("Pintando: "+column+","+row);
+//            if (column > 9) {
+//                System.out.println("Agregando columna");
+//                addDiagramColumn();
+//            }
             TableColumn tableColumn = diagram.getColumnModel().getColumn(column);
             cellRender.setRowToColor(row);
             cellRender.setColor(color);

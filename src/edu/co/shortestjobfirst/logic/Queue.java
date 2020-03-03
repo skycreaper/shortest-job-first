@@ -44,14 +44,23 @@ public final class Queue extends Thread {
         for (int i = 0; i < numberOfProcesses; i++) {
             executionTime = ran.nextInt(6) + 1;
             newProcess = new Process(ALPHABETH[i], i, i, executionTime, executionTime);
+            newProcess.setColor(gui.getRandomColor());
             processes.add(newProcess);
         }
+    }
+
+    int getTotalTime() {
+        int acum = 0;
+        for (int i = 0; i < processes.size(); i++) {
+            acum += processes.get(i).getExecutionTime();
+        }
+        return acum;
     }
 
     public void btnStartActionPerformed(java.awt.event.ActionEvent evt) {
         initProcesses();
         gui.drawTable(processes);
-        gui.drawDiagram();
+        gui.drawDiagram(processes, getTotalTime());
         //setBlockedProcceses();
 //        gui.lblNumberOfProcess.setText("PROCESOS: " + numberOfProcesses);
 
@@ -69,79 +78,99 @@ public final class Queue extends Thread {
                     int i = 0;
                     actualProcess = processes.get(i);
                     while (processes.size() > 0) {
-                        //System.out.println("actualProcess: " + actualProcess.getProcessName());
-                        gui.addDiagramRow(actualProcess.getProcessName());
+                        System.out.println("-----------------");
+                        System.out.println("actualProcess: " + actualProcess.getProcessName());
 
                         actualProcess.setStartTime(startTime);
-
-                        locked = ran.nextBoolean() && actualProcess.getExecutionTime() > 2;
-
-//                        if (locked) {
-//                            remainingTime = actualProcess.getExecutionTime() - (ran.nextInt(actualProcess.getExecutionTime() - 2) + 1);
-//                            System.out.println("proceso " + actualProcess.getProcessName() + " bloqueado");
-//                            actualProcess.setLocked(locked);
-//                            actualProcess.setTimeWasBlocked(actualProcess.getEndTime() - remainingTime);
-//
-//                            blockedProcess = new Process(
-//                                    actualProcess.getProcessName() + "B",
-//                                    processes.size(),
-//                                    actualProcess.getFrontArriveTime(),
-//                                    remainingTime,
-//                                    actualProcess.getExecutionTime()
-//                            );
-//
-//                            actualProcess.calculateTimes();
-//                            System.out.println("-----------------");
-//                            System.out.println("actualProcess: " + actualProcess.getStartTime() + " | " + actualProcess.getEndTime());
-//
-//                            for (int j = actualProcess.getStartTime(); j < (actualProcess.getTimeWasBlocked() - actualProcess.getStartTime()) + actualProcess.getStartTime(); j++) {
-//                                gui.paintCell(j + 1, i, gui.getRandomColor());
-//                                this.sleep(1000);
-//                            }
-//                            for (int j = actualProcess.getTimeWasBlocked(); j < actualProcess.getEndTime(); j++) {
-//                                gui.paintCell(j + 1, i, Color.red);
-//                                this.sleep(1000);
-//                            }
-//
-//                            gui.addTableRow(blockedProcess.getProcessName(),
-//                                    blockedProcess.getFrontArriveTime(),
-//                                    blockedProcess.getExecutionTime(), actualProcess.getStartTime(),
-//                                    blockedProcess.getReturnTime(), actualProcess.getEndTime(),
-//                                    blockedProcess.getWaitTime()
-//                            );
-//
-//                        } else {
-//                            actualProcess.calculateTimes();
-//                            System.out.println("-----------------");
-//                            System.out.println("actualProcess: " + actualProcess.getStartTime() + " | " + actualProcess.getEndTime());
-//                            for (int j = actualProcess.getStartTime(); j < actualProcess.getEndTime(); j++) {
-//                                gui.paintCell(j + 1, i, gui.getRandomColor());
-//                                System.out.println("sleep");
-//                                this.sleep(1000);
-//                            }
-//                        }
-
-                        actualProcess.calculateTimes();
-                        System.out.println("-----------------");
-                        System.out.println("actualProcess: " + actualProcess.getStartTime() + " | " + actualProcess.getEndTime());
-                        System.out.println("actualProcess rafaga: "+ actualProcess.getExecutionTime());
-                        for (int j = actualProcess.getStartTime(); j < actualProcess.getEndTime(); j++) {
-                            gui.paintCell(j + 1, i, gui.getRandomColor());
-                            System.out.println("sleep");
-                            this.sleep(1000);
+                        
+                        if (!actualProcess.isDuplicate()) {
+                            actualProcess.setRow(i);
                         }
+                        
+                        gui.editDiagramCell(actualProcess.getProcessName(), actualProcess.getRow(), 0);
+                        
+                        
+                        
+                        locked = ran.nextBoolean() && actualProcess.getExecutionTime() > 2;
+                        actualProcess.calculateTimes();
+                        if (locked) {
+                            remainingTime = actualProcess.getExecutionTime() - (ran.nextInt(actualProcess.getExecutionTime() - 2) + 1);
+                            //System.out.println("remaining: " + remainingTime);
+                            System.out.println("proceso " + actualProcess.getProcessName() + " bloqueado");
+
+                            actualProcess.setLocked(locked);
+                            actualProcess.setTimeWasBlocked(actualProcess.getEndTime() - remainingTime);
+
+                            blockedProcess = new Process(
+                                    actualProcess.getProcessName(),
+                                    processes.size(),
+                                    actualProcess.getFrontArriveTime(),
+                                    remainingTime,
+                                    actualProcess.getExecutionTime()
+                            );
+
+                            blockedProcess.setRow(actualProcess.getRow());
+                            blockedProcess.setColor(actualProcess.getColor());
+                            blockedProcess.setDuplicate(true);
+
+                            actualProcess.calculateTimes();
+
+//                            System.out.println("Proceso: " + actualProcess.getProcessName());
+//                            System.out.println("\tBloqueado en: " + actualProcess.getTimeWasBlocked());
+//                            System.out.println("\tComenzo en: " + actualProcess.getStartTime());
+//                            System.out.println("\tRafaga en: " + actualProcess.getExecutionTime());
+
+                            for (int j = actualProcess.getStartTime(); j < (actualProcess.getTimeWasBlocked() - actualProcess.getStartTime()) + actualProcess.getStartTime(); j++) {
+                                gui.paintCell(j + 1, actualProcess.getRow(), actualProcess.getColor());
+                                this.sleep(1000);
+                            }
+                            for (int j = actualProcess.getTimeWasBlocked(); j < actualProcess.getEndTime(); j++) {
+                                gui.paintCell(j + 1, actualProcess.getRow(), Color.red);
+                                this.sleep(1000);
+                            }
+                            actualProcess.setEndTime(actualProcess.getTimeWasBlocked());
+                            gui.addTableRow(blockedProcess.getProcessName(),
+                                    blockedProcess.getFrontArriveTime(),
+                                    blockedProcess.getExecutionTime(), actualProcess.getStartTime(),
+                                    blockedProcess.getReturnTime(), actualProcess.getEndTime(),
+                                    blockedProcess.getWaitTime()
+                            );
+                            actualProcess.setRow(i);
+
+                        } else {
+                            //actualProcess.calculateTimes();
+                            //System.out.println("-----------------");
+//                            System.out.println("actualProcess: " + actualProcess.getStartTime() + " | " + actualProcess.getEndTime());
+//                            System.out.println("actualProcess rafaga: " + actualProcess.getExecutionTime());
+                            
+                            for (int j = actualProcess.getStartTime(); j < actualProcess.getEndTime(); j++) {
+                                gui.paintCell(j + 1, actualProcess.getRow(), actualProcess.getColor());
+                                System.out.println("sleep");
+                                this.sleep(1000);
+                            }
+                        }
+                        
 
                         startTime = actualProcess.getEndTime();
-
+                        
+                        if (!actualProcess.isDuplicate()) {
+                            gui.addTableInfo(actualProcess.getStartTime(), 
+                                actualProcess.getEndTime(), actualProcess.getReturnTime(), 
+                                actualProcess.getWaitTime(), i);
+                            i++;
+                        } else {
+                            System.out.println("Proceso duplicado!");
+                        }
+                        
                         processes.remove(actualProcess);
-                        i++;
+
                         actualProcess = getNextProcess();
-//                        if (locked) {
-//                            if (processes.isEmpty()) {
-//                                actualProcess = blockedProcess;
-//                            }
-//                            processes.add(blockedProcess);
-//                        }
+                        if (locked) {
+                            if (processes.isEmpty()) {
+                                actualProcess = blockedProcess;
+                            }
+                            processes.add(blockedProcess);
+                        }
                     }
                     gui.btnStart.setEnabled(true);
 

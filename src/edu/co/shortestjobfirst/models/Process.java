@@ -1,5 +1,7 @@
 package edu.co.shortestjobfirst.models;
 
+import java.awt.Color;
+
 /**
  *
  * @author juancsr
@@ -7,6 +9,7 @@ package edu.co.shortestjobfirst.models;
 public class Process extends Thread {
     private String processName;
     private boolean locked;
+    private boolean duplicate;
     private int timeWasBlocked;
     private int arriveTime;
     private int frontArriveTime;
@@ -16,6 +19,8 @@ public class Process extends Thread {
     private int endTime;
     private int returnTime;
     private int waitTime;
+    private int row; // fila para pintar en el front
+    private Color color;
     private volatile boolean running = true;
 
     /*
@@ -32,6 +37,31 @@ public class Process extends Thread {
         this.frontArriveTime = frontArriveTime;
         this.executionTime = executionTime;
         this.totalExecutionTime = executionTime;
+        this.duplicate = false;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public boolean isDuplicate() {
+        return duplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        this.duplicate = duplicate;
+    }
+    
+    public int getRow() {
+        return row;
+    }
+
+    public void setRow(int row) {
+        this.row = row;
     }
     
     public void calculateTimes() {
@@ -70,6 +100,10 @@ public class Process extends Thread {
 
     public void setExecutionTime(int executionTime) {
         this.executionTime = executionTime;
+    }
+
+    public void setEndTime(int endTime) {
+        this.endTime = endTime;
     }
 
     public int getStartTime() {
