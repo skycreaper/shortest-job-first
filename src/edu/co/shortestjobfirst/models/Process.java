@@ -20,6 +20,7 @@ public class Process extends Thread {
     private int returnTime;
     private int waitTime;
     private int row; // fila para pintar en el front
+    private int rowTable;
     private Color color;
     private volatile boolean running = true;
 
@@ -38,6 +39,14 @@ public class Process extends Thread {
         this.executionTime = executionTime;
         this.totalExecutionTime = executionTime;
         this.duplicate = false;
+    }
+
+    public int getRowTable() {
+        return rowTable;
+    }
+
+    public void setRowTable(int rowTable) {
+        this.rowTable = rowTable;
     }
 
     public Color getColor() {
@@ -66,8 +75,15 @@ public class Process extends Thread {
     
     public void calculateTimes() {
         endTime = executionTime + startTime;
-        returnTime = endTime - arriveTime;
-        waitTime = returnTime - executionTime;
+            
+        if (this.duplicate) {
+            returnTime = Math.abs(endTime - frontArriveTime);
+            waitTime = Math.abs(returnTime - totalExecutionTime);
+        } else {
+            returnTime = Math.abs(endTime - arriveTime);
+            waitTime = Math.abs(returnTime - executionTime);
+        }
+        
     }
     
     public boolean getLocked() {

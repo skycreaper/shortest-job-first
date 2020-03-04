@@ -45,6 +45,7 @@ public final class Queue extends Thread {
             executionTime = ran.nextInt(6) + 1;
             newProcess = new Process(ALPHABETH[i], i, i, executionTime, executionTime);
             newProcess.setColor(gui.getRandomColor());
+            newProcess.setRowTable(i);
             processes.add(newProcess);
         }
     }
@@ -78,9 +79,7 @@ public final class Queue extends Thread {
                     int i = 0;
                     actualProcess = processes.get(i);
                     while (processes.size() > 0) {
-                        System.out.println("-----------------");
-                        System.out.println("actualProcess: " + actualProcess.getProcessName());
-
+                        System.out.println("Process: "+actualProcess.getProcessName());
                         actualProcess.setStartTime(startTime);
                         
                         if (!actualProcess.isDuplicate()) {
@@ -89,18 +88,15 @@ public final class Queue extends Thread {
                         
                         gui.editDiagramCell(actualProcess.getProcessName(), actualProcess.getRow(), 0);
                         
-                        
-                        
                         locked = ran.nextBoolean() && actualProcess.getExecutionTime() > 2;
                         actualProcess.calculateTimes();
+                        
                         if (locked) {
                             remainingTime = actualProcess.getExecutionTime() - (ran.nextInt(actualProcess.getExecutionTime() - 2) + 1);
-                            //System.out.println("remaining: " + remainingTime);
-                            System.out.println("proceso " + actualProcess.getProcessName() + " bloqueado");
 
                             actualProcess.setLocked(locked);
                             actualProcess.setTimeWasBlocked(actualProcess.getEndTime() - remainingTime);
-
+                            
                             blockedProcess = new Process(
                                     actualProcess.getProcessName(),
                                     processes.size(),
@@ -108,17 +104,13 @@ public final class Queue extends Thread {
                                     remainingTime,
                                     actualProcess.getExecutionTime()
                             );
-
+                            
+                            blockedProcess.setRowTable(numberOfProcesses++);
                             blockedProcess.setRow(actualProcess.getRow());
                             blockedProcess.setColor(actualProcess.getColor());
                             blockedProcess.setDuplicate(true);
 
                             actualProcess.calculateTimes();
-
-//                            System.out.println("Proceso: " + actualProcess.getProcessName());
-//                            System.out.println("\tBloqueado en: " + actualProcess.getTimeWasBlocked());
-//                            System.out.println("\tComenzo en: " + actualProcess.getStartTime());
-//                            System.out.println("\tRafaga en: " + actualProcess.getExecutionTime());
 
                             for (int j = actualProcess.getStartTime(); j < (actualProcess.getTimeWasBlocked() - actualProcess.getStartTime()) + actualProcess.getStartTime(); j++) {
                                 gui.paintCell(j + 1, actualProcess.getRow(), actualProcess.getColor());
@@ -128,39 +120,31 @@ public final class Queue extends Thread {
                                 gui.paintCell(j + 1, actualProcess.getRow(), Color.red);
                                 this.sleep(1000);
                             }
+                            
+                            actualProcess.setExecutionTime(actualProcess.getExecutionTime() - remainingTime);
                             actualProcess.setEndTime(actualProcess.getTimeWasBlocked());
                             gui.addTableRow(blockedProcess.getProcessName(),
                                     blockedProcess.getFrontArriveTime(),
-                                    blockedProcess.getExecutionTime(), actualProcess.getStartTime(),
-                                    blockedProcess.getReturnTime(), actualProcess.getEndTime(),
-                                    blockedProcess.getWaitTime()
+                                    blockedProcess.getExecutionTime()
                             );
                             actualProcess.setRow(i);
 
                         } else {
-                            //actualProcess.calculateTimes();
-                            //System.out.println("-----------------");
-//                            System.out.println("actualProcess: " + actualProcess.getStartTime() + " | " + actualProcess.getEndTime());
-//                            System.out.println("actualProcess rafaga: " + actualProcess.getExecutionTime());
                             
                             for (int j = actualProcess.getStartTime(); j < actualProcess.getEndTime(); j++) {
                                 gui.paintCell(j + 1, actualProcess.getRow(), actualProcess.getColor());
-                                System.out.println("sleep");
                                 this.sleep(1000);
                             }
                         }
                         
-
                         startTime = actualProcess.getEndTime();
                         
-                        if (!actualProcess.isDuplicate()) {
-                            gui.addTableInfo(actualProcess.getStartTime(), 
+                        gui.addTableInfo(actualProcess.getStartTime(), 
                                 actualProcess.getEndTime(), actualProcess.getReturnTime(), 
-                                actualProcess.getWaitTime(), i);
-                            i++;
-                        } else {
-                            System.out.println("Proceso duplicado!");
-                        }
+                                actualProcess.getWaitTime(), actualProcess.getRowTable());
+                        
+                        if (!actualProcess.isDuplicate()) i++;
+                        
                         
                         processes.remove(actualProcess);
 

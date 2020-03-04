@@ -67,7 +67,7 @@ public class GUI extends JFrame{
         pnlHeader.setBackground(c1);
         pnlHeader.setLayout(null);
         pnlHeader.add(lblTitle);
-        lblTitle.setBounds(screenWidth / 3 + 50, 55, 350, 40);
+        lblTitle.setBounds(screenWidth / 3, 55, 400, 40);
         lblTitle.setFont(font);
         lblTitle.setText("SHORTEST JOB FIRST");
         lblTitle.setForeground(c3);
@@ -79,20 +79,15 @@ public class GUI extends JFrame{
         pnlSubHeader.setBackground(c2);
         pnlSubHeader.setLayout(null);
         pnlSubHeader.add(lblAutorD);
-        lblAutorD.setBounds(774, 10, 250, 25);
+        lblAutorD.setBounds(600, 10, 350, 25);
         lblAutorD.setFont(font2);
         lblAutorD.setText("DAVID STEVEN SANTOS SANTOS");
         lblAutorD.setForeground(c3);
         pnlSubHeader.add(lblAutorJ);
-        lblAutorJ.setBounds(774, 35, 250, 25);
+        lblAutorJ.setBounds(600, 35, 350, 25);
         lblAutorJ.setFont(font2);
         lblAutorJ.setText("JUAN CAMILO SARMIENTO REYES");
         lblAutorJ.setForeground(c3);
-        
-        pnlSubHeader.add(btnStart);
-        btnStart.setBounds(850, 60, 100, 40);
-        btnStart.setForeground(c1);
-        btnStart.setFont(font2);
     }
     
     public void drawContent(){
@@ -100,6 +95,10 @@ public class GUI extends JFrame{
         pnlContent.setLayout(null);
         pnlContent.setBounds(0, 225, screenWidth, 250);
         pnlContent.setBackground(c2);
+        pnlContent.add(btnStart);
+        btnStart.setBounds(850, 10, 100, 40);
+        btnStart.setForeground(c1);
+        btnStart.setFont(font2);
     }
     
     public void drawTable(List<Process> processes){
@@ -123,7 +122,7 @@ public class GUI extends JFrame{
         scrollTableProcess = new JScrollPane(tblProcess);
         pnlContent.add(scrollTableProcess);
         
-        scrollTableProcess.setBounds(10, 10, 700, 200);
+        scrollTableProcess.setBounds(10, 10, 800, 300);
         scrollTableProcess.setBackground(c2);
         scrollTableProcess.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
         
@@ -145,17 +144,11 @@ public class GUI extends JFrame{
      * @param process       Nombre del proceso
      * @param arriveTime    Hora de llegada
      * @param executeTime   Tiempo de rafaga
-     * @param startTime     Tiempo de comienzo
-     * @param endTime       Tiempo de finalización
-     * @param returnedTime  Tiempo de retorno
-     * @param waitTime      Tiempo de espera
      */
-    public void addTableRow(String process, int arriveTime, int executeTime, 
-            int startTime, int endTime, int returnedTime, int waitTime) {
+    public void addTableRow(String process, int arriveTime, int executeTime) {
         
         DefaultTableModel model = (DefaultTableModel) tblProcess.getModel();
-        model.addRow(new Object[]{process, arriveTime, executeTime, startTime,
-            returnedTime, endTime, waitTime});
+        model.addRow(new Object[]{process, arriveTime, executeTime});
     }
     
     public void addDiagramRow(String processName) {
